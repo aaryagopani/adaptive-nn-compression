@@ -1,0 +1,17 @@
+# OpenEnv submission environment
+# Install with: openenv_venv\Scripts\pip install -r requirements.txt
+
+# Web server and validation
+fastapi>=0.110.0
+uvicorn>=0.28.0
+pydantic>=2.6.0
+
+# Baseline agent inference
+openai>=1.14.0
+
+# OpenEnv framework (use openenv-core; PyPI "openenv" is a different project)
+openenv-core[core]>=0.2.0
+# Runtime model loading, pruning, and CIFAR evaluation
+torch>=2.1.0
+torchvision>=0.16.0
+requests

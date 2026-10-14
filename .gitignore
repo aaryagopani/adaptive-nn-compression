@@ -1,0 +1,20 @@
+# Virtual environments
+openenv_venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Training
+training/
+logs/
+
+# IDE / tools
+.cph/
+.vscode/
+
+# Local runtime data
+.runtime_data/
+
+
+.env

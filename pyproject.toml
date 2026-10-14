@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "edge-ai-compression-gym"
+version = "1.0.0"
+description = "Compress pre-trained CIFAR-10 models using quantization, pruning, and layer fusion."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "openenv-core[core]>=0.2.0",
+    "fastapi>=0.110.0",
+    "uvicorn>=0.28.0",
+    "pydantic>=2.6.0",
+    "openai>=1.14.0",
+    "torch>=2.1.0",
+    "torchvision>=0.16.0",
+    "requests",
+]
+
+[project.scripts]
+server = "server.app:main"
+
+[tool.setuptools]
+packages = ["server"]
+py-modules = ["models"]

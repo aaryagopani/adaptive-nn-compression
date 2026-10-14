@@ -1,0 +1,115 @@
+name: edge-ai-compression-gym
+version: "1.0.0"
+description: >
+  Compress pre-trained CIFAR-10 models using quantization, pruning, and layer
+  fusion. Agents are scored on target compression achieved while preserving
+  accuracy.
+
+author: VasuBB
+license: MIT
+
+server:
+  entrypoint: server/app.py
+  port: 7860
+  dockerfile: server/Dockerfile
+
+tasks:
+  easy:
+    description: >
+      Compress MiniCNN to 1.5x with <=5% accuracy drop. 15 steps.
+    model: MiniCNN
+    model_key: cnn
+    target_compression: 1.5
+    max_accuracy_drop: 5.0
+    max_steps: 15
+
+  medium:
+    description: >
+      Compress MiniResNet to 2x with <=3% accuracy drop. 20 steps.
+    model: MiniResNet
+    model_key: resnet
+    target_compression: 2.0
+    max_accuracy_drop: 3.0
+    max_steps: 20
+
+  hard:
+    description: >
+      Compress MiniTransformer to 2x with <=2% accuracy drop. 20 steps.
+    model: MiniTransformer
+    model_key: transformer
+    target_compression: 2.0
+    max_accuracy_drop: 2.0
+    max_steps: 20
+
+actions:
+  type: CompressionAction
+  schema:
+    action_type:
+      type: enum
+      values: [quantize, prune, fuse, finish]
+      required: true
+
+    target_layer:
+      type: string
+      description: Layer name from the observation layer menu
+      required_for: [quantize, prune]
+
+    target_bits:
+      type: enum
+      values: [4, 8, 16]
+      required_for: [quantize]
+
+    sparsity:
+      type: float
+      range: [0.05, 0.95]
+      required_for: [prune]
+
+    fuse_group_id:
+      type: string
+      required_for: [fuse]
+
+observations:
+  type: CompressionObservation
+  key_fields:
+    - model_name
+    - step
+    - steps_remaining
+    - current_mb
+    - current_accuracy
+    - compression_ratio
+    - accuracy_drop
+    - accuracy_budget
+    - size_budget_mb
+    - layers
+    - fusable_groups
+    - last_action_result
+    - valid_action_types
+
+reward_functions:
+  default: hybrid_a
+  available:
+    - name: hybrid_a
+      description: Budget-normalized size gain with an accuracy gate
+  recommended_hyperparameters:
+    quantization_bits: [16, 8, 16]
+    prune_sparsities: [0.25, 0.35]
+
+scoring:
+  method: compute_final_score
+  range: [0.0, 1.0]
+  formula: compression_achievement x accuracy_preservation
+  notes: >
+    Independent of reward shaping. Used to score task completion objectively.
+
+assets:
+  models:
+    - path: assets/mini_cnn.pth
+      description: Pre-trained MiniCNN on CIFAR-10
+    - path: assets/mini_resnet.pth
+      description: Pre-trained MiniResNet on CIFAR-10
+    - path: assets/mini_transformer.pth
+      description: Pre-trained MiniTransformer on CIFAR-10
+  dataset:
+    name: CIFAR-10
+    auto_download: true
+    eval_samples: 1000
